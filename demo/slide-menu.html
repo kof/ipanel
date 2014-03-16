@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html charset=utf-8"/>
+        <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+        <link href="../jquery-ipanel.css" type="text/css" media="all" rel="stylesheet"/>
+        <script src="../bower_components/jquery/jquery.js"></script>
+        <script src="../bower_components/jquery.event.move/js/jquery.event.move.js"></script>
+        <script src="../jquery.ipanel.js"></script>
+        <style>
+            body {
+                margin: 0;
+            }
+            .screen, .main, .menu {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+            }
+            .screen {
+                border: 1px solid #ededed;
+            }
+            .main {
+                background: #4A4D4E;
+            }
+            .menu {
+                width: 270px;
+                background: green;
+            }
+            .button {
+                height: 60px;
+                background: #ededed;
+                position: absolute;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="screen">
+            <div class="menu">
+                Menu
+            </div>
+            <div class="main">
+                <div class="ipanel-handle ipanel-overlay"></div>
+                <div class="ipanel-handle button">Show menu</div>
+            </div>
+        </div>
+        <script>
+            $('.screen')
+                .iPanel({primary: '.main', secondary: '.menu'})
+                .on('beforehide.ipanel hide.ipanel beforeshow.ipanel show.ipanel', function(e) {
+                    console.log(e.type)
+                })
+
+            // Prevent scrolling.
+            $(window).on('touchmove', function(e) {
+                e.preventDefault()
+            })
+
+        </script>
+    </body>
+</html>
+
+
+

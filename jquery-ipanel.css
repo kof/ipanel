@@ -1,0 +1,20 @@
+.ipanel, .ipanel-secondary {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 0;
+}
+.ipanel-handle {
+    cursor: pointer;
+}
+.ipanel-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    z-index: 100000000;
+    display: none;
+}
+.ipanel-primary-hidden .ipanel-overlay {
+    display: block;
+}
