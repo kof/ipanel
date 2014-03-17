@@ -6,7 +6,7 @@ var iPanel = require('./index'),
 $.fn.iPanel = function(options, p1, p2) {
     var ret,
         args = slice.call(arguments, 1)
-console.log(options, p1, p2)
+
     this.each(function() {
         var $this = $(this),
             inst = $this.data('iPanel')
