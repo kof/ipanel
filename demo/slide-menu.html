@@ -42,24 +42,24 @@
         </div>
         <script>
         (function() {
-            var $screen = $('.screen')
+            var $main = $('.main')
 
-            $screen
-                .iPanel({master: '.main', slave: '.menu'})
+            $main
+                .iPanel({slave: $('.menu')})
                 .on('beforehide.ipanel hide.ipanel beforeshow.ipanel show.ipanel', function(e) {
                     console.log(e.type)
                 })
 
             $('#trigger-show').click(function() {
                 console.time('show')
-                $screen.iPanel('show', function() {
+                $main.iPanel('show', function() {
                     console.timeEnd('show')
                 })
             })
 
             $('#trigger-hide').click(function() {
                 console.time('hide')
-                $screen.iPanel('hide', function() {
+                $main.iPanel('hide', function() {
                     console.timeEnd('hide')
                 })
             })

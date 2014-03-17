@@ -70,9 +70,9 @@ iPanel.defaults = {
     hidden: false,
     // Direction for swipe/drag to hide the master container.
     hideDirection: 'right',
-    // Selector/element/method for the slave container, which is hidden when master
+    // Selector/element for the slave container, which is hidden when master
     // Is shown.
-    slave: 'prev',
+    slave: null,
     // Animate slave container when animating/dragging master (ios like).
     slaveAnimation: true,
     // Max distance to move slave when slaveAnimation is true.
@@ -346,21 +346,18 @@ iPanel.prototype._translateX = function(el, x) {
 iPanel.prototype._setElements = function($item) {
     var o = this.options
 
+    // Item has not chachged.
     if (this.elements.item && $item[0] === this.elements.item[0]) return this
 
+    // Reset previous transformation.
     if (this.elements.master) this._translateX(this.elements.master[0], null)
-    this.elements.item = $item
-    this.elements.master = $item.find(o.master)
 
-    if (o.slave) {
-        if (o.slave == 'prev' || o.slave == 'next') {
-            this.elements.slave = this.elements.master[o.slave]()
-        } else if (typeof o.slave == 'string') {
-            this.elements.slave = $item.find(o.slave)
-        } else {
-            this.elements.slave = $(o.slave)
-        }
+    this.elements.item = $item
+    this.elements.master = $item
+    if (o.master) {
+        this.elements.master = typeof o.master == 'string' ? $item.find(o.master) : $(o.maxter)
     }
+    this.elements.slave = typeof o.slave == 'string' ? $item.find(o.slave) : $(o.slave)
 
     return this
 }
