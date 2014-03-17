@@ -333,7 +333,7 @@ iPanel.prototype._setElements = function($item) {
     this.elements.item = $item
     this.elements.master = $item
     if (o.master) {
-        this.elements.master = typeof o.master == 'string' ? $item.find(o.master) : $(o.maxter)
+        this.elements.master = typeof o.master == 'string' ? $item.find(o.master) : $(o.master)
     }
     this.elements.slave = typeof o.slave == 'string' ? $item.find(o.slave) : $(o.slave)
 
