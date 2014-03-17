@@ -1,5 +1,5 @@
 {
-    name: 'jquery-ipanel',
+    name: 'ipanel',
     description: 'Mobile slide menus.',
     version: '0.1.1',
     author: {
@@ -8,9 +8,9 @@
     },
     repository: {
         type: 'git',
-        url: 'git@github.com:kof/jquery-ipanel.git'
+        url: 'git@github.com:kof/ipanel.git'
     },
-    keywords: ['menu', 'slide', 'mobile'],
+    keywords: ['menu', 'slide', 'mobile', 'jquery'],
     engines: {},
     scripts: {},
     licenses: [
