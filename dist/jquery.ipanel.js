@@ -1,3 +1,25 @@
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+
+var styles = [
+  'webkitTransform',
+  'MozTransform',
+  'msTransform',
+  'OTransform',
+  'transform'
+];
+
+var el = document.createElement('p');
+var style;
+
+for (var i = 0; i < styles.length; i++) {
+  style = styles[i];
+  if (null != el.style[style]) {
+    module.exports = style;
+    break;
+  }
+}
+
+},{}],2:[function(require,module,exports){
 'use strict'
 
 var transform = require('transform-property'),
@@ -328,3 +350,34 @@ iPanel.prototype._onMoveEnd = function(e) {
     }
 }
 
+
+},{"transform-property":1}],3:[function(require,module,exports){
+'use strict'
+
+var iPanel = require('./index'),
+    slice = [].slice
+
+$.fn.iPanel = function(options, p1, p2) {
+    var ret,
+        args = slice.call(arguments, 1)
+console.log(options, p1, p2)
+    this.each(function() {
+        var $this = $(this),
+            inst = $this.data('iPanel')
+
+        if (inst) {
+            ret = inst[options].apply(inst, args)
+            if (ret === inst) ret = null
+        } else {
+            inst = new iPanel($this, options)
+            inst.init()
+            $this.data('iPanel', inst)
+        }
+    })
+
+    return ret != null ? ret : this
+}
+
+$.fn.iPanel.iPanel = iPanel
+
+},{"./index":2}]},{},[3])

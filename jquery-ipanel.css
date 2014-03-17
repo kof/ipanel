@@ -1,4 +1,4 @@
-.ipanel, .ipanel-secondary {
+.ipanel, .ipanel-slave, .ipanel-handle {
     transform: translateZ(0);
     backface-visibility: hidden;
     perspective: 0;
@@ -15,6 +15,6 @@
     z-index: 100000000;
     display: none;
 }
-.ipanel-primary-hidden .ipanel-overlay {
+.ipanel-master-hidden .ipanel-overlay {
     display: block;
 }

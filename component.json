@@ -22,8 +22,5 @@
       "type": "MIT",
       "url": "http://www.opensource.org/licenses/mit-license.php"
     }
-  ],
-  "dependencies": {
-    "transform-property": "0.0.1"
-  }
+  ]
 }

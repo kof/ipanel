@@ -1,23 +1,36 @@
 {
-    name: '',
-    description: '',
-    version: '0.1.0',
+    name: 'jquery-ipanel',
+    description: 'Mobile slide menus.',
+    version: '0.1.1',
     author: {
         name: 'Oleg Slobodskoi',
         email: 'oleg008@gmail.com'
     },
     repository: {
         type: 'git',
-        url: 'git@github.com:kof/xxx.git'
+        url: 'git@github.com:kof/jquery-ipanel.git'
     },
-    keywords: [],
+    keywords: ['menu', 'slide', 'mobile'],
     engines: {},
-    devDependencies: {},
     scripts: {},
     licenses: [
         {
            type: 'MIT',
            url: 'http://www.opensource.org/licenses/mit-license.php'
         }
-    ]
+    ],
+    overlay: {
+        npm: {
+            devDependencies: {
+                browserify: '3.24.13',
+                'uglify-js': '2.4.x'
+            }
+        },
+        bower: {
+            dependencies: {
+                'transform-property': '0.0.1'
+            }
+        },
+        component: true
+    }
 }

@@ -4,9 +4,9 @@
         <meta http-equiv="Content-Type" content="text/html charset=utf-8"/>
         <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
         <link href="../jquery-ipanel.css" type="text/css" media="all" rel="stylesheet"/>
-        <script src="../bower_components/jquery/jquery.js"></script>
+        <script src="../bower_components/jquery/dist/jquery.js"></script>
         <script src="../bower_components/jquery.event.move/js/jquery.event.move.js"></script>
-        <script src="../jquery.ipanel.js"></script>
+        <script src="../dist/jquery.ipanel.js"></script>
         <style>
             body {
                 margin: 0;
@@ -63,11 +63,11 @@
 
             $('.list')
                 .iPanel({
-                    primary: '.list-item-content',
-                    secondary: $menu,
-                    animateSecondary: false,
+                    master: '.list-item-content',
+                    slave: $menu,
+                    slaveAnimation: false,
                     hideDirection: 'left',
-                    delegate: true
+                    static: false
                 })
                 .on('beforehide.ipanel', function(e) {
                     console.log(e.type)

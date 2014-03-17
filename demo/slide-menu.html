@@ -4,9 +4,9 @@
         <meta http-equiv="Content-Type" content="text/html charset=utf-8"/>
         <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
         <link href="../jquery-ipanel.css" type="text/css" media="all" rel="stylesheet"/>
-        <script src="../bower_components/jquery/jquery.js"></script>
+        <script src="../bower_components/jquery/dist/jquery.js"></script>
         <script src="../bower_components/jquery.event.move/js/jquery.event.move.js"></script>
-        <script src="../jquery.ipanel.js"></script>
+        <script src="../dist/jquery.ipanel.js"></script>
         <style>
             body {
                 margin: 0;
@@ -26,35 +26,49 @@
                 width: 270px;
                 background: green;
             }
-            .button {
-                height: 60px;
-                background: #ededed;
-                position: absolute;
-            }
         </style>
     </head>
     <body>
         <div class="screen">
             <div class="menu">
                 Menu
+                <button id="trigger-show">Trigger show with callback</button>
             </div>
             <div class="main">
                 <div class="ipanel-handle ipanel-overlay"></div>
-                <div class="ipanel-handle button">Show menu</div>
+                <button class="ipanel-handle show-menu">Show menu</button>
+                <button id="trigger-hide">Trigger hide with callback</button>
             </div>
         </div>
         <script>
-            $('.screen')
-                .iPanel({primary: '.main', secondary: '.menu'})
+        (function() {
+            var $screen = $('.screen')
+
+            $screen
+                .iPanel({master: '.main', slave: '.menu'})
                 .on('beforehide.ipanel hide.ipanel beforeshow.ipanel show.ipanel', function(e) {
                     console.log(e.type)
                 })
+
+            $('#trigger-show').click(function() {
+                console.time('show')
+                $screen.iPanel('show', function() {
+                    console.timeEnd('show')
+                })
+            })
+
+            $('#trigger-hide').click(function() {
+                console.time('hide')
+                $screen.iPanel('hide', function() {
+                    console.timeEnd('hide')
+                })
+            })
 
             // Prevent scrolling.
             $(window).on('touchmove', function(e) {
                 e.preventDefault()
             })
-
+        }())
         </script>
     </body>
 </html>
