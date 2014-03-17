@@ -3,9 +3,15 @@
 var iPanel = require('./index'),
     slice = [].slice
 
-$.fn.iPanel = function(options, p1, p2) {
-    var ret,
-        args = slice.call(arguments, 1)
+/**
+ * jQuery plugin binding.
+ *
+ * @param {Object} options, see iPanel.defaults
+ * @return {jQuery}
+ * @api public
+ */
+$.fn.iPanel = function(options) {
+    var ret, args = slice.call(arguments, 1)
 
     this.each(function() {
         var $this = $(this),
@@ -24,4 +30,5 @@ $.fn.iPanel = function(options, p1, p2) {
     return ret != null ? ret : this
 }
 
+// Expose constructor to jquery namespace.
 $.fn.iPanel.iPanel = iPanel
