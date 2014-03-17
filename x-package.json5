@@ -1,6 +1,6 @@
 {
     name: 'ipanel',
-    description: 'Mobile slide menus.',
+    description: 'Mobile slide panels.',
     version: '0.1.1',
     author: {
         name: 'Oleg Slobodskoi',
@@ -31,6 +31,7 @@
                 'transform-property': '0.0.1'
             }
         },
-        component: true
+        component: true,
+        jquery: true
     }
 }
