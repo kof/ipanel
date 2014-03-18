@@ -35,7 +35,7 @@ function iPanel($container, options) {
  * @api public
  */
 iPanel.defaults = {
-    duration: 300,
+    duration: 500,
     // Easing functions https://github.com/yields/css-ease
     easing: 'cubic-bezier(0.190, 1.000, 0.220, 1.000)',
     // If touchend - touchstart < 1000 -> swipe, otherwise - drag.
@@ -57,7 +57,7 @@ iPanel.defaults = {
     slaveDisposition: 100,
     // False when master, slave and other elements have to be found on touch.
     // True if they can be found in the main container on init.
-    static: true
+    dynamic: false
 }
 
 /**
@@ -84,7 +84,7 @@ iPanel.prototype.init = function() {
         .on('move', o.handle, $.proxy(this._onMove, this))
         .on('moveend', o.handle, $.proxy(this._onMoveEnd, this))
 
-    if (o.static) {
+    if (!o.dynamic) {
         this._setElements(this.elements.container)
         this.refresh()
     }
@@ -106,7 +106,7 @@ iPanel.prototype.show = function(duration, callback) {
         duration = null
     }
 
-    if (this._animating || !this.options.hidden) {
+    if (this._animating) {
         setTimeout(callback)
         return this
     }
@@ -137,7 +137,7 @@ iPanel.prototype.hide = function(duration, callback) {
         duration = null
     }
 
-    if (this._animating || this.options.hidden) {
+    if (this._animating) {
         setTimeout(callback)
         return this
     }
@@ -178,7 +178,7 @@ iPanel.prototype.option = function(name, value) {
 iPanel.prototype.refresh = function() {
     var maxLeft = this._getMaxLeft(true)
 
-    this._move(this.options.hidden ? maxLeft : 0, 0)
+    this._translateX(this.elements.master[0], this.options.hidden ? maxLeft : 0)
 
     return this
 }
@@ -200,10 +200,8 @@ iPanel.prototype._toggle = function(hide, duration, callback) {
     var self = this,
         left = hide ? this._getMaxLeft() : 0
 
-    this.options.hidden = hide
-
-    this._move(left, duration, function() {
-        self.elements.container.toggleClass('ipanel-master-hidden', hide)
+    this._animate(left, duration, function() {
+        if (!self.options.dynamic) self.elements.container.toggleClass('ipanel-master-hidden', hide)
         if (callback) callback()
         self._emit(hide ? 'hide' : 'show')
     })
@@ -220,7 +218,7 @@ iPanel.prototype._toggle = function(hide, duration, callback) {
  * @return {iPanel} this
  * @api private
  */
-iPanel.prototype._move = function(left, duration, callback) {
+iPanel.prototype._animate = function(left, duration, callback) {
     var self = this,
         o = this.options
 
@@ -229,7 +227,7 @@ iPanel.prototype._move = function(left, duration, callback) {
         duration = o.duration
     }
 
-    this._left = left
+    this._animating = true
 
     this._translate(this.elements.master[0], left, duration, function() {
         self._animating = false
@@ -248,13 +246,13 @@ iPanel.prototype._move = function(left, duration, callback) {
  * Set transformation and transition.
  *
  * @param {Element} el
- * @param {Number} x
+ * @param {Number} left
  * @param {Number} [duration]
  * @param {Function} [callback]
  * @return {iPanel}
  * @api private
  */
- iPanel.prototype._translate = function(el, x, duration, callback) {
+ iPanel.prototype._translate = function(el, left, duration, callback) {
     var o = this.options
 
     duration != null || (duration = o.duration)
@@ -265,7 +263,7 @@ iPanel.prototype._move = function(left, duration, callback) {
         setTimeout(callback)
     }
 
-    this._translateX(el, x)
+    this._translateX(el, left)
 
     return this
 }
@@ -283,6 +281,7 @@ iPanel.prototype._move = function(left, duration, callback) {
 iPanel.prototype._transit = function(el, duration, easing, callback) {
     if (callback) {
         el.addEventListener(vendor + 'TransitionEnd', function onTransitionEnd() {
+            el.style[vendor + 'Transition'] = ''
             el.removeEventListener(vendor + 'TransitionEnd', onTransitionEnd)
             if (callback) callback()
             callback = null
@@ -309,7 +308,8 @@ iPanel.prototype._transit = function(el, duration, easing, callback) {
  * @api private
  */
 iPanel.prototype._translateX = function(el, x) {
-    el.style[transform] = x ? 'translateX(' + x + 'px)' : ''
+    this._left = x || 0
+    el.style[transform] = x == null ? '' : 'translateX(' + x + 'px)'
 
     return this
 }
@@ -324,10 +324,9 @@ iPanel.prototype._translateX = function(el, x) {
 iPanel.prototype._setElements = function($item) {
     var o = this.options
 
-    // Item has not chachged.
+    // Item has not changed.
     if (this.elements.item && $item[0] === this.elements.item[0]) return this
 
-    // Reset previous transformation.
     if (this.elements.master) this._translateX(this.elements.master[0], null)
 
     this.elements.item = $item
@@ -390,7 +389,7 @@ iPanel.prototype._isHidden = function() {
  */
 iPanel.prototype._onTouchEnd = function(e) {
     if (this._dragging || this._animating) return
-    if (!this.options.static) this._setElements($(e.target).parent())
+    if (this.options.dynamic) this._setElements($(e.target).parent())
     e.preventDefault()
     this[this._isHidden() ? 'show' : 'hide']()
 }
@@ -404,7 +403,7 @@ iPanel.prototype._onTouchEnd = function(e) {
 iPanel.prototype._onMoveStart = function(e) {
     this._dragging = true
     this._moveStartTime = Date.now()
-    if (!this.options.static) this._setElements($(e.target).parent())
+    if (this.options.dynamic) this._setElements($(e.target).parent())
     this._emit('before' + (this._isHidden() ? 'show' : 'hide'))
 }
 
@@ -434,7 +433,7 @@ iPanel.prototype._onMove = function(e) {
         // Move to the left, however already left
         if (e.deltaX < 0 && this._left <= this._getMaxLeft()) return
     }
-    this._move(this._left + e.deltaX, 0)
+    this._translateX(e.target, this._left + e.deltaX)
 }
 
 /**
@@ -447,15 +446,15 @@ iPanel.prototype._onMoveEnd = function(e) {
     var self = this,
         isSwipe = Date.now() - this._moveStartTime < this.options.swipeDurationThreshold
 
+    this._dragging = false
+
     if (isSwipe) {
-        this._dragging = false
         if (this.options.hideDirection == 'right') {
             e.deltaX > 0 ? this._toggle(true) : this._toggle()
         } else {
             e.deltaX < 0 ? this._toggle(true) : this._toggle()
         }
     } else {
-        this._dragging = false
         if (this.options.hideDirection == 'right') {
             this._left >= this._getMaxLeft() / 2 ? this._toggle(true) : this._toggle()
         } else {

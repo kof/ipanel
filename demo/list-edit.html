@@ -4,10 +4,15 @@
         <meta http-equiv="Content-Type" content="text/html charset=utf-8"/>
         <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
         <link href="../jquery-ipanel.css" type="text/css" media="all" rel="stylesheet"/>
+        <!--
+        <script src="http://192.168.77.148:8080/target/target-script-min.js#anonymous"></script>-->
         <script src="../bower_components/jquery/dist/jquery.js"></script>
         <script src="../bower_components/jquery.event.move/js/jquery.event.move.js"></script>
+        <!--
         <script src="../dist/jquery.ipanel.js"></script>
+        -->
         <style>
+            * { -webkit-tap-highlight-color: rgba(0,0,0,0); }
             body {
                 margin: 0;
             }
@@ -59,24 +64,34 @@
 
         <script>
         (function() {
-            var $menu = $('#list-item-menu').detach()
+            // Avoid caching by wrong headers.
+            $.ajax({
+                dataType: 'script',
+                cache: false,
+                url: '../dist/jquery.ipanel.js',
+                success: bind
+            })
 
-            $('.list')
-                .iPanel({
-                    master: '.list-item-content',
-                    slave: $menu,
-                    slaveAnimation: false,
-                    hideDirection: 'left',
-                    static: false
-                })
-                .on('beforehide.ipanel', function(e) {
-                    console.log(e.type)
-                    $menu.insertAfter(e.target)
-                })
-                .on('show.ipanel', function(e) {
-                    console.log(e.type)
-                    $menu.detach()
-                })
+            function bind() {
+                var $menu = $('#list-item-menu').detach()
+
+                $('.list')
+                    .iPanel({
+                        master: '.list-item-content',
+                        slave: $menu,
+                        slaveAnimation: false,
+                        hideDirection: 'left',
+                        dynamic: true
+                    })
+                    .on('beforehide.ipanel', function(e) {
+                        console.log(e.type, e)
+                        $menu.insertAfter(e.target)
+                    })
+                    .on('show.ipanel', function(e) {
+                        console.log(e.type)
+                        $menu.detach()
+                    })
+            }
 
             // Prevent scrolling.
             $(window).on('touchmove', function(e) {
