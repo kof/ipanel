@@ -82,7 +82,8 @@ iPanel.defaults = {
     slaveDisposition: 100,
     // False when master, slave and other elements have to be found on touch.
     // True if they can be found in the main container on init.
-    dynamic: false
+    dynamic: false,
+    drag: true
 }
 
 /**
@@ -102,11 +103,15 @@ module.exports = iPanel
 iPanel.prototype.init = function() {
     var o = this.options
 
-    this.elements.container
-        .addClass('ipanel' + (o.hidden ? ' ipanel-master-hidden' : ''))
-        .on(iPanel.touch ? 'touchend' : 'mouseup', o.handle, $.proxy(this._onTouchEnd, this))
-        .on('move', o.handle, $.proxy(this._onMove, this))
-        .on('moveend', o.handle, $.proxy(this._onMoveEnd, this))
+    this.elements.container.addClass('ipanel' + (o.hidden ? ' ipanel-master-hidden' : ''))
+    if (o.drag) {
+        this.elements.container
+            .on(iPanel.touch ? 'touchend' : 'mouseup', o.handle, $.proxy(this._onTouchEnd, this))
+            .on('move', o.handle, $.proxy(this._onMove, this))
+            .on('moveend', o.handle, $.proxy(this._onMoveEnd, this))
+    } else {
+        this.elements.container.on('tap', o.handle, $.proxy(this._onTap, this))
+    }
 
     if (!o.dynamic) {
         this._setElements(this.elements.container)
@@ -534,6 +539,29 @@ iPanel.prototype._onMoveEnd = function(e) {
             this._left < this._getMaxLeft() / 2 ? this._toggle(true, null, o.easingAfterDrag) : this._toggle(false, null, o.easingAfterDrag)
         }
     }
+}
+
+/**
+ * Toggle menu without drag.
+ *
+ * @param {jQuery.event} e
+ * @api private
+ */
+iPanel.prototype._onTap = function(e) {
+    var self = this,
+        o = this.options,
+        $master
+
+    if (o.dynamic) {
+        $master = $(e.target).closest(o.master)
+        if (!$master.length) return
+        this._setElements($master.parent())
+    }
+    this._emit('before' + (this._isHidden() ? 'show' : 'hide'))
+
+    requestAnimationFrame(function() {
+        self._toggle(self._isHidden() ? false : true, null, o.easingAfterSwipe)
+    })
 }
 
 },{"transform-property":1}]},{},[2])
