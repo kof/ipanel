@@ -216,6 +216,7 @@ iPanel.prototype._toggle = function(hide, duration, easing, callback) {
 
     this._animate(left, duration, easing, function() {
         if (!self.options.dynamic) self.elements.container.toggleClass('ipanel-master-hidden', hide)
+        self.elements.master.toggleClass('ipanel-hidden', hide)
         if (callback) callback()
         self._emit(hide ? 'hide' : 'show')
     })
