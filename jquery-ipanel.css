@@ -1,4 +1,4 @@
-.ipanel, .ipanel-slave, .ipanel-handle {
+.ipanel-master, .ipanel-slave {
     -webkit-transform: translateZ(0);
     -moz-transform: translateZ(0);
     -ms-transform: translateZ(0);

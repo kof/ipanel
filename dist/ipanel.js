@@ -383,6 +383,7 @@ iPanel.prototype._setElements = function($item) {
     if (this.elements.master) {
         this._setTranslateX(this.elements.master[0], null)
         this._setTransition(this.elements.master[0], null)
+        this.elements.master.removeClass('ipanel-master')
     }
 
     this.elements.item = $item
@@ -390,7 +391,10 @@ iPanel.prototype._setElements = function($item) {
     if (o.master) {
         this.elements.master = typeof o.master == 'string' ? $item.find(o.master) : $(o.master)
     }
+    this.elements.master.addClass('ipanel-master')
+    if (this.elements.slave) this.elements.slave.removeClass('ipanel-slave')
     this.elements.slave = typeof o.slave == 'string' ? $item.find(o.slave) : $(o.slave)
+    this.elements.slave.addClass('ipanel-slave')
 
     return this
 }
