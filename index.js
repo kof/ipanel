@@ -189,9 +189,8 @@ iPanel.prototype.option = function(name, value) {
  * @api public
  */
 iPanel.prototype.refresh = function() {
-    var maxLeft = this._getMaxLeft(true)
-
-    this._setTranslateX(this.elements.master[0], this.options.hidden ? maxLeft : 0)
+    this._left = this.options.hidden ? this._getMaxLeft(true) : 0
+    this._setTranslateX(this.elements.master[0], this._left)
 
     return this
 }
@@ -242,6 +241,7 @@ iPanel.prototype._animate = function(left, duration, easing, callback) {
         o = this.options
 
     this._animating = true
+    this._left = left
 
     this._translate(this.elements.master[0], left, duration, easing, function() {
         self._animating = false
@@ -324,7 +324,6 @@ iPanel.prototype._transit = function(el, duration, easing, callback) {
  * @api private
  */
 iPanel.prototype._setTranslateX = function(el, x) {
-    this._left = x || 0
     el.style[transform] = x == null ? '' : 'translateX(' + x + 'px)'
 
     return this
@@ -359,6 +358,7 @@ iPanel.prototype._setElements = function($item) {
 
     // Reset transition and tranformation for previous master.
     if (this.elements.master) {
+        this._left = 0
         this._setTranslateX(this.elements.master[0], null)
         this._setTransition(this.elements.master[0], null)
         this.elements.master.removeClass('ipanel-master')
@@ -486,7 +486,9 @@ iPanel.prototype._onMove = function(e) {
         // Move to the left, however already left
         if (e.deltaX < 0 && this._left <= this._getMaxLeft()) return
     }
-    this._setTranslateX(this.elements.master[0], this._left + e.deltaX)
+
+    this._left += e.deltaX
+    this._setTranslateX(this.elements.master[0], this._left)
 }
 
 /**
