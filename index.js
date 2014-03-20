@@ -183,17 +183,19 @@ iPanel.prototype.option = function(name, value) {
 }
 
 /**
- * Refresh transition.
+ * Refresh positions.
  *
  * @return {iPanel} this
  * @api public
  */
 iPanel.prototype.refresh = function() {
-    this._left = this.options.hidden ? this._getMaxLeft(true) : 0
-    this._setTranslateX(this.elements.master[0], this._left)
+    // Cache and recalc slave width.
+    var maxLeft = this._getMaxLeft(true)
+    this._animate(this._isHidden() ? maxLeft : 0 , 0)
 
     return this
 }
+
 
 /**
  * Get animating status.
