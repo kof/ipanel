@@ -267,12 +267,18 @@ iPanel.prototype._animate = function(left, duration, easing, callback) {
  * @api private
  */
  iPanel.prototype._translate = function(el, left, duration, easing, callback) {
-    var o = this.options
+    var self = this,
+        o = this.options
 
     duration != null || (duration = o.duration)
+    easing != null || (easing = o.easing)
 
     if (duration) {
-        this._transit(el, duration, easing, callback)
+        this._onceTransitionEnd(el, duration, function() {
+            self._setTransition(el, null)
+            if (callback) callback()
+        })
+        this._setTransition(el, duration + 'ms ' + easing)
     } else {
         setTimeout(callback)
     }
@@ -283,22 +289,16 @@ iPanel.prototype._animate = function(left, duration, easing, callback) {
 }
 
 /**
- * Set transition.
+ * Call back once when transition end
  *
  * @param {Element} el
  * @param {Number} duration
- * @param {String} easing
  * @param {Function} [callback]
  * @return {iPanel}
  * @api private
  */
-iPanel.prototype._transit = function(el, duration, easing, callback) {
-    var self = this
-
-    easing != null || (easing = this.options.easing)
-
+iPanel.prototype._onceTransitionEnd = function(el, duration, callback) {
     el.addEventListener(vendor + 'TransitionEnd', function onTransitionEnd() {
-        self._setTransition(el, null)
         el.removeEventListener(vendor + 'TransitionEnd', onTransitionEnd)
         if (callback) callback()
         callback = null
@@ -309,8 +309,6 @@ iPanel.prototype._transit = function(el, duration, easing, callback) {
         if (callback) callback()
         callback = null
     }, duration + 20)
-
-    this._setTransition(el, duration + 'ms ' + easing)
 
     return this
 }
