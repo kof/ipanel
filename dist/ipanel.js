@@ -115,7 +115,7 @@ iPanel.prototype.init = function() {
 
     if (!o.dynamic) {
         this._setElements(this.elements.container)
-        this.refresh()
+        this.refresh(o)
     }
 }
 
@@ -135,7 +135,7 @@ iPanel.prototype.show = function(duration, callback) {
         duration = null
     }
 
-    if (this._animating) {
+    if (this._animating || !this._isHidden()) {
         setTimeout(callback)
         return this
     }
@@ -166,7 +166,7 @@ iPanel.prototype.hide = function(duration, callback) {
         duration = null
     }
 
-    if (this._animating) {
+    if (this._animating || this._isHidden()) {
         setTimeout(callback)
         return this
     }
@@ -210,10 +210,10 @@ iPanel.prototype.option = function(name, value) {
  * @return {iPanel} this
  * @api public
  */
-iPanel.prototype.refresh = function() {
+iPanel.prototype.refresh = function(options) {
     // Cache and recalc slave width.
     var maxLeft = this._getMaxLeft(true)
-    this._animate(this._isHidden() ? maxLeft : 0 , 0)
+    this._animate(options && options.hidden || this._isHidden() ? maxLeft : 0 , 0)
 
     return this
 }
