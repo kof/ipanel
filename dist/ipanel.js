@@ -48,7 +48,7 @@ function iPanel($container, options) {
     this._maxLeft = 0
     this._moveStartTime = 0
     this._dragging = false
-    this._animating = false
+    this._moving = false
 }
 
 /**
@@ -76,7 +76,7 @@ iPanel.defaults = {
     // Selector/element for the slave container, which is hidden when master
     // Is shown.
     slave: null,
-    // Animate slave container when animating/dragging master (ios like).
+    // Animate slave container when moving/dragging master (ios like).
     slaveAnimation: true,
     // Max distance to move slave when slaveAnimation is true.
     slaveDisposition: 100,
@@ -135,7 +135,7 @@ iPanel.prototype.show = function(duration, callback) {
         duration = null
     }
 
-    if (this._animating || !this._isHidden()) {
+    if (this._moving || this._dragging|| !this._isHidden()) {
         setTimeout(callback)
         return this
     }
@@ -166,7 +166,7 @@ iPanel.prototype.hide = function(duration, callback) {
         duration = null
     }
 
-    if (this._animating || this._isHidden()) {
+    if (this._moving || this._dragging || this._isHidden()) {
         setTimeout(callback)
         return this
     }
@@ -213,20 +213,20 @@ iPanel.prototype.option = function(name, value) {
 iPanel.prototype.refresh = function(options) {
     // Cache and recalc slave width.
     var maxLeft = this._getMaxLeft(true)
-    this._animate(options && options.hidden || this._isHidden() ? maxLeft : 0 , 0)
+    this._move(options && options.hidden || this._isHidden() ? maxLeft : 0 , 0)
 
     return this
 }
 
 
 /**
- * Get animating status.
+ * Get moving status.
  *
  * @return {Boolean}
  * @api public
  */
-iPanel.prototype.animating = function() {
-    return this._animating
+iPanel.prototype.moving = function() {
+    return this._moving
 }
 
 /**
@@ -242,7 +242,7 @@ iPanel.prototype._toggle = function(hide, duration, easing, callback) {
     var self = this,
         left = hide ? this._getMaxLeft() : 0
 
-    this._animate(left, duration, easing, function() {
+    this._move(left, duration, easing, function() {
         if (!self.options.dynamic) self.elements.container.toggleClass('ipanel-master-hidden', hide)
         if (callback) callback()
         self._emit(hide ? 'hide' : 'show')
@@ -260,15 +260,15 @@ iPanel.prototype._toggle = function(hide, duration, easing, callback) {
  * @return {iPanel} this
  * @api private
  */
-iPanel.prototype._animate = function(left, duration, easing, callback) {
+iPanel.prototype._move = function(left, duration, easing, callback) {
     var self = this,
         o = this.options
 
-    this._animating = true
+    this._moving = true
     this._left = left
 
     this._translate(this.elements.master[0], left, duration, easing, function() {
-        self._animating = false
+        self._moving = false
         if (callback) callback()
     })
 
@@ -407,7 +407,7 @@ iPanel.prototype._setElements = function($item) {
  * @api private
  */
 iPanel.prototype._getMaxLeft = function(force) {
-    if (this._maxLeft && !force) return this._maxLeft
+    if (this._maxLeft != null && !force) return this._maxLeft
     this._maxLeft = this.elements.slave.outerWidth()
     if (this.options.hideDirection == 'left') this._maxLeft *= -1
 
@@ -451,7 +451,7 @@ iPanel.prototype._onTouchEnd = function(e) {
     var self = this,
         $master
 
-    if (this._dragging || this._animating || this._vertMovement || this._horMovement) return
+    if (this._dragging || this._moving || this._vertMovement || this._horMovement) return
     if (this.options.dynamic) {
         $master = $(e.target).closest(this.options.master)
         if (!$master.length) return
