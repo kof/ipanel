@@ -23,7 +23,7 @@ function iPanel($container, options) {
     this.options = $.extend({}, iPanel.defaults, options)
     this.elements = {container: $container}
     this._left = 0
-    this._maxLeft = 0
+    this._maxLeft = null
     this._moveStartTime = 0
     this._dragging = false
     this._moving = false
@@ -464,11 +464,7 @@ iPanel.prototype._onMove = function(e) {
         this._dragging = true
         this._moveStartTime = Date.now()
         if (this.options.dynamic) {
-            this._setElements(
-                $(e.target)
-                    .closest(this.options.master)
-                    .parent()
-            )
+            this._setElements($(e.target).closest(this.options.handle))
         }
         this._emit('before' + (this._isHidden() ? 'show' : 'hide'))
     }
