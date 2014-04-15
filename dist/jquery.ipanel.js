@@ -518,7 +518,8 @@ iPanel.prototype._onMove = function(e) {
 iPanel.prototype._onMoveEnd = function(e) {
     var self = this,
         o = this.options,
-        isSwipe
+        isSwipe,
+        vert = this._vertMovement
 
     isSwipe = this._horDistance > o.swipeDistanceThreshold &&
         Date.now() - this._moveStartTime < o.swipeDurationThreshold
@@ -527,6 +528,8 @@ iPanel.prototype._onMoveEnd = function(e) {
     this._horMovement = false
     this._vertMovement = false
     this._horDistance = 0
+
+    if (vert) return
 
     if (isSwipe) {
         if (this.options.hideDirection == 'right') {
