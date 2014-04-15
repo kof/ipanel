@@ -83,7 +83,10 @@ iPanel.defaults = {
     // False when master, slave and other elements have to be found on touch.
     // True if they can be found in the main container on init.
     dynamic: false,
-    drag: true
+    drag: true,
+    // When hide/show complete previous animation fast when in progress and start
+    // the new one immediately.
+    skipPreviousAnimation: false
 }
 
 /**
@@ -103,15 +106,11 @@ module.exports = iPanel
 iPanel.prototype.init = function() {
     var o = this.options
 
-    this.elements.container.addClass('ipanel' + (o.hidden ? ' ipanel-master-hidden' : ''))
-    if (o.drag) {
-        this.elements.container
-            .on(iPanel.touch ? 'touchend' : 'mouseup', o.handle, $.proxy(this._onTouchEnd, this))
-            .on('move', o.handle, $.proxy(this._onMove, this))
-            .on('moveend', o.handle, $.proxy(this._onMoveEnd, this))
-    } else {
-        this.elements.container.on('tap', o.handle, $.proxy(this._onTap, this))
-    }
+    this.elements.container
+        .addClass('ipanel' + (o.hidden ? ' ipanel-master-hidden' : ''))
+        .on(iPanel.touch ? 'touchend' : 'mouseup', o.handle, $.proxy(this._onTouchEnd, this))
+        .on('move', o.handle, $.proxy(this._onMove, this))
+        .on('moveend', o.handle, $.proxy(this._onMoveEnd, this))
 
     if (!o.dynamic) {
         this._setElements(this.elements.container)
@@ -313,6 +312,21 @@ iPanel.prototype._move = function(left, duration, easing, callback) {
 }
 
 /**
+ * Complete animation.
+ *
+ * @return {iPanel}
+ * @api private
+ */
+iPanel.prototype._forceComplete = function() {
+    if (this.elements.master)  {
+        this._setTransition(this.elements.master[0], null)
+        this.elements.master.triggerHandler(vendor + 'TransitionEnd')
+    }
+
+    return this
+}
+
+/**
  * Call back once when transition end
  *
  * @param {Element} el
@@ -322,17 +336,18 @@ iPanel.prototype._move = function(left, duration, easing, callback) {
  * @api private
  */
 iPanel.prototype._onceTransitionEnd = function(el, duration, callback) {
-    el.addEventListener(vendor + 'TransitionEnd', function onTransitionEnd() {
-        el.removeEventListener(vendor + 'TransitionEnd', onTransitionEnd)
+    var $el = $(el)
+
+    function end() {
+        $el.off(vendor + 'TransitionEnd', end)
         if (callback) callback()
         callback = null
-    }, false)
+    }
+
+    $el.on(vendor + 'TransitionEnd', end)
 
     // For the case we don't get the event.
-    setTimeout(function() {
-        if (callback) callback()
-        callback = null
-    }, duration + 20)
+    setTimeout(end, duration + 20)
 
     return this
 }
@@ -451,6 +466,8 @@ iPanel.prototype._onTouchEnd = function(e) {
     var self = this,
         $master
 
+    if (this.options.skipPreviousAnimation) this._forceComplete()
+
     if (this._dragging || this._moving || this._vertMovement || this._horMovement) return
     if (this.options.dynamic) {
         $master = $(e.target).closest(this.options.master)
@@ -477,8 +494,8 @@ iPanel.prototype._onMove = function(e) {
     this._horMovement || (this._horMovement =  this._horDistance > 3)
     this._vertMovement || (this._vertMovement = Math.abs(e.distY) > 3)
 
-    // No horizontal movement.
-    if (!e.deltaX || !this._horMovement) return
+    // No horizontal drag.
+    if (!e.deltaX || !this._horMovement || !this.options.drag) return
 
     if (!this._dragging) {
         // If vertical movement is detected - ignore drag only if not dragging already.
@@ -521,15 +538,15 @@ iPanel.prototype._onMoveEnd = function(e) {
         isSwipe,
         vert = this._vertMovement
 
-    isSwipe = this._horDistance > o.swipeDistanceThreshold &&
-        Date.now() - this._moveStartTime < o.swipeDurationThreshold
-
     this._dragging = false
     this._horMovement = false
     this._vertMovement = false
     this._horDistance = 0
 
     if (vert) return
+
+    isSwipe = this._horDistance > o.swipeDistanceThreshold &&
+        Date.now() - this._moveStartTime < o.swipeDurationThreshold
 
     if (isSwipe) {
         if (this.options.hideDirection == 'right') {
@@ -546,28 +563,7 @@ iPanel.prototype._onMoveEnd = function(e) {
     }
 }
 
-/**
- * Toggle menu without drag.
- *
- * @param {jQuery.event} e
- * @api private
- */
-iPanel.prototype._onTap = function(e) {
-    var self = this,
-        o = this.options,
-        $master
 
-    if (o.dynamic) {
-        $master = $(e.target).closest(o.master)
-        if (!$master.length) return
-        this._setElements($master.parent())
-    }
-    this._emit('before' + (this._isHidden() ? 'show' : 'hide'))
-
-    requestAnimationFrame(function() {
-        self._toggle(self._isHidden() ? false : true, null, o.easingAfterSwipe)
-    })
-}
 
 },{"transform-property":1}],3:[function(require,module,exports){
 'use strict'
