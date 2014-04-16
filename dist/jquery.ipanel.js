@@ -620,4 +620,4 @@ $.fn.iPanel = function(options) {
 // Expose constructor to jquery namespace.
 $.fn.iPanel.iPanel = iPanel
 
-},{"./index":2}]},{},[3]);
+},{"./index":2}]},{},[3])
