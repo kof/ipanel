@@ -81,6 +81,11 @@ iPanel.defaults = {
     // False when master, slave and other elements have to be found on touch.
     // True if they can be found in the main container on init.
     dynamic: false,
+    // In the case of dynamic behavior you might want to set it to 'master'
+    // because at the moment of drag start, 'beforehide' event is not triggered
+    // yet and so the user probably hasn't inserted slave element into dom, which
+    // is used per default to detect the animation/drag range.
+    getWidthFrom: 'slave',
     drag: true,
     // When hide/show complete previous animation fast when in progress and start
     // the new one immediately.
@@ -439,7 +444,7 @@ iPanel.prototype._setElements = function($item) {
  */
 iPanel.prototype._getMaxLeft = function(force) {
     if (this._maxLeft != null && !force) return this._maxLeft
-    this._maxLeft = this.elements.slave.outerWidth()
+    this._maxLeft = this.elements[this.options.getWidthFrom].outerWidth()
     if (this.options.hideDirection == 'left') this._maxLeft *= -1
 
     return this._maxLeft
@@ -518,12 +523,10 @@ iPanel.prototype._onMove = function(e) {
     if (!this._dragging) {
         // If vertical movement is detected - ignore drag only if not dragging already.
         if (this._vertMovement) return
-        this._dragging = true
         this._moveStartTime = Date.now()
         if (this.options.dynamic) {
             this._setElements($(e.target).closest(this.options.handle))
         }
-        this._emit('before' + (this._isHidden() ? 'show' : 'hide'))
     }
 
     // Hide direction - right.
@@ -538,6 +541,12 @@ iPanel.prototype._onMove = function(e) {
         if (e.deltaX > 0 && this._left >= 0) return
         // Move to the left, however already left
         if (e.deltaX < 0 && this._left <= this._getMaxLeft()) return
+    }
+
+    // Move start.
+    if (!this._dragging) {
+        this._dragging = true
+        this._emit('before' + (this._isHidden() ? 'show' : 'hide'))
     }
 
     this._left += e.deltaX
@@ -574,7 +583,6 @@ iPanel.prototype._onMoveEnd = function(e) {
         }
     }
 }
-
 
 },{"transform-property":1}],3:[function(require,module,exports){
 'use strict'
