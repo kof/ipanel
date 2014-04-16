@@ -22,7 +22,7 @@
     overlay: {
         npm: {
             devDependencies: {
-                browserify: '3.24.13',
+                browserify: '3.43.0',
                 'uglify-js': '2.4.x'
             }
         },
