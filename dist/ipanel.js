@@ -46,9 +46,7 @@ function iPanel($container, options) {
     this.elements = {container: $container}
     this._left = 0
     this._maxLeft = null
-    this._moveStartTime = 0
-    this._dragging = false
-    this._moving = false
+    this._resetState()
 }
 
 /**
@@ -312,12 +310,30 @@ iPanel.prototype._move = function(left, duration, easing, callback) {
 }
 
 /**
+ * Set state variables to initial values.
+ *
+ * @return {iPanel}
+ * @api private
+ */
+iPanel.prototype._resetState = function() {
+    this._dragging = false
+    this._horMovement = false
+    this._vertMovement = false
+    this._horDistance = 0
+    this._moving = false
+    this._moveStartTime = 0
+    this._currentTarget = null
+
+    return this
+}
+
+/**
  * Complete animation.
  *
  * @return {iPanel}
  * @api private
  */
-iPanel.prototype._forceComplete = function() {
+iPanel.prototype._endTransition = function() {
     if (this.elements.master)  {
         this._setTransition(this.elements.master[0], null)
         this.elements.master.triggerHandler(vendor + 'TransitionEnd')
@@ -457,7 +473,7 @@ iPanel.prototype._isHidden = function() {
 }
 
 /**
- * Touchend event handler.
+ * Touchend event handler, just for tap handling.
  *
  * @param {jQuery.Event} e
  * @api private
@@ -466,9 +482,9 @@ iPanel.prototype._onTouchEnd = function(e) {
     var self = this,
         $master
 
-    if (this.options.skipPreviousAnimation) this._forceComplete()
-
+    if (this._currentTarget !== e.currentTarget) this._endTransition()
     if (this._dragging || this._moving || this._vertMovement || this._horMovement) return
+    this._resetState()
     if (this.options.dynamic) {
         $master = $(e.target).closest(this.options.master)
         if (!$master.length) return
@@ -493,10 +509,12 @@ iPanel.prototype._onMove = function(e) {
     this._horDistance = Math.abs(e.distX)
     this._horMovement || (this._horMovement =  this._horDistance > 3)
     this._vertMovement || (this._vertMovement = Math.abs(e.distY) > 3)
+    this._currentTarget = e.currentTarget
 
     // No horizontal drag.
     if (!e.deltaX || !this._horMovement || !this.options.drag) return
 
+    // Move start.
     if (!this._dragging) {
         // If vertical movement is detected - ignore drag only if not dragging already.
         if (this._vertMovement) return
@@ -535,18 +553,12 @@ iPanel.prototype._onMove = function(e) {
 iPanel.prototype._onMoveEnd = function(e) {
     var self = this,
         o = this.options,
-        isSwipe,
-        vert = this._vertMovement
-
-    this._dragging = false
-    this._horMovement = false
-    this._vertMovement = false
-    this._horDistance = 0
-
-    if (vert) return
+        isSwipe
 
     isSwipe = this._horDistance > o.swipeDistanceThreshold &&
         Date.now() - this._moveStartTime < o.swipeDurationThreshold
+
+    this._resetState()
 
     if (isSwipe) {
         if (this.options.hideDirection == 'right') {
@@ -562,7 +574,6 @@ iPanel.prototype._onMoveEnd = function(e) {
         }
     }
 }
-
 
 
 },{"transform-property":1}]},{},[2])
