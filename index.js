@@ -59,11 +59,6 @@ iPanel.defaults = {
     // False when master, slave and other elements have to be found on touch.
     // True if they can be found in the main container on init.
     dynamic: false,
-    // In the case of dynamic behavior you might want to set it to 'master'
-    // because at the moment of drag start, 'beforehide' event is not triggered
-    // yet and so the user probably hasn't inserted slave element into dom, which
-    // is used per default to detect the animation/drag range.
-    getWidthFrom: 'slave',
     drag: true,
     // When hide/show complete previous animation fast when in progress and start
     // the new one immediately.
@@ -422,7 +417,7 @@ iPanel.prototype._setElements = function($item) {
  */
 iPanel.prototype._getMaxLeft = function(force) {
     if (this._maxLeft != null && !force) return this._maxLeft
-    this._maxLeft = this.elements[this.options.getWidthFrom].outerWidth()
+    this._maxLeft = this.elements.slave.outerWidth()
     if (this.options.hideDirection == 'left') this._maxLeft *= -1
 
     return this._maxLeft

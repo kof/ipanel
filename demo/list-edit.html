@@ -50,6 +50,7 @@
         <div class="list">
             <div class="list-item">
                 <div class="list-item-content ipanel-handle">List item 0</div>
+                <div id="list-item-menu"></div>
             </div>
             <div class="list-item">
                 <div class="list-item-content ipanel-handle">List item 1</div>
@@ -63,7 +64,6 @@
             <div class="list-item">
                 <div class="list-item-content ipanel-handle">List item 5</div>
             </div>
-            <div id="list-item-menu"></div>
         </div>
 
         <script>
@@ -82,7 +82,7 @@
             })
 
             function bind() {
-                var $menu = $('#list-item-menu').detach()
+                var $menu = $('#list-item-menu')
 
                 $('.list')
                     .iPanel({
@@ -93,7 +93,6 @@
                         hideDirection: 'left',
                         dynamic: true,
                         skipPreviousAnimation: true,
-                        getWidthFrom: 'master',
                         //duration: 5000,
                         //drag: false
                     })
