@@ -323,6 +323,7 @@ iPanel.prototype._resetState = function() {
     this._moving = false
     this._moveStartTime = 0
     this._currentTarget = null
+    this._directionX = 0
 
     return this
 }
@@ -504,19 +505,32 @@ iPanel.prototype._onTouchEnd = function(e) {
  */
 iPanel.prototype._onMove = function(e) {
     var self = this,
-        dist
+        directionX = 0
 
     this._horDistance = Math.abs(e.distX)
     this._horMovement || (this._horMovement =  this._horDistance > 3)
-    this._vertMovement || (this._vertMovement = Math.abs(e.distY) > 3)
-    this._currentTarget = e.currentTarget
 
     // No horizontal drag.
     if (!e.deltaX || !this._horMovement || !this.options.drag) return
 
+    this._vertMovement || (this._vertMovement = Math.abs(e.distY) > 3)
+    this._currentTarget = e.currentTarget
+
+    if (e.deltaX) directionX = e.deltaX < 0 ? -1 : 1
+
+
+    // Direction has changed. Ensure we recognize swipe later.
+    if (this._dragging && directionX != this._directionX) {
+        this._horDistance = 0
+        this._moveStartTime = Date.now()
+    }
+
+    this._directionX = directionX
+
     // Move start.
     if (!this._dragging) {
-        // If vertical movement is detected - ignore drag only if not dragging already.
+        // If vertical movement is detected - ignore drag,
+        // but only if not dragging already.
         if (this._vertMovement) return
         this._moveStartTime = Date.now()
         if (this.options.dynamic) {
@@ -527,15 +541,15 @@ iPanel.prototype._onMove = function(e) {
     // Hide direction - right.
     if (this._getMaxLeft() > 0) {
         // Move to the right, however already right.
-        if (e.deltaX > 0 && this._left >= this._getMaxLeft()) return
+        if (directionX > 0 && this._left >= this._getMaxLeft()) return
         // Move to the left, however already left.
-        if (e.deltaX < 0 && this._left <= 0) return
+        if (directionX < 0 && this._left <= 0) return
     // Hide direction - left.
     } else {
         // Move to the right, however already right.
-        if (e.deltaX > 0 && this._left >= 0) return
+        if (directionX > 0 && this._left >= 0) return
         // Move to the left, however already left
-        if (e.deltaX < 0 && this._left <= this._getMaxLeft()) return
+        if (directionX < 0 && this._left <= this._getMaxLeft()) return
     }
 
     // Move start.
@@ -562,21 +576,21 @@ iPanel.prototype._onMoveEnd = function(e) {
     isSwipe = this._horDistance > o.swipeDistanceThreshold &&
         Date.now() - this._moveStartTime < o.swipeDurationThreshold
 
-    this._resetState()
-
     if (isSwipe) {
-        if (this.options.hideDirection == 'right') {
-            e.distX > 0 ? this._toggle(true, null, o.easingAfterSwipe) : this._toggle()
+        if (o.hideDirection == 'right') {
+            this._directionX > 0 ? this._toggle(true, null, o.easingAfterSwipe) : this._toggle()
         } else {
-            e.distX < 0 ? this._toggle(true, null, o.easingAfterSwipe) : this._toggle()
+            this._directionX < 0 ? this._toggle(true, null, o.easingAfterSwipe) : this._toggle()
         }
     } else {
-        if (this.options.hideDirection == 'right') {
+        if (o.hideDirection == 'right') {
             this._left >= this._getMaxLeft() / 2 ? this._toggle(true, null, o.easingAfterDrag) : this._toggle(false, null, o.easingAfterDrag)
         } else {
             this._left < this._getMaxLeft() / 2 ? this._toggle(true, null, o.easingAfterDrag) : this._toggle(false, null, o.easingAfterDrag)
         }
     }
+
+    this._resetState()
 }
 
 },{"transform-property":1}],3:[function(require,module,exports){
