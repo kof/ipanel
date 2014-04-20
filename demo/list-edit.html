@@ -11,10 +11,7 @@
         <script src="../bower_components/jquery/dist/jquery.js"></script>
 
         <script src="../bower_components/jquery.event.move/js/jquery.event.move.js"></script>
-
-        <!--
         <script src="../dist/jquery.ipanel.js"></script>
-        -->
         <style>
             * { -webkit-tap-highlight-color: rgba(0,0,0,0); }
             body {
@@ -74,13 +71,14 @@
             AnimationFrame.shim()
 
             // Avoid caching by wrong headers.
+            /*
             $.ajax({
                 dataType: 'script',
                 cache: false,
                 url: '/dist/jquery.ipanel.js',
                 success: bind
             })
-
+    */
             function bind() {
                 var $menu = $('#list-item-menu')
 
@@ -104,6 +102,8 @@
                         console.log(e.type)
                     })
             }
+
+            bind()
 
             // Prevent scrolling.
             $(window).on('touchmove', function(e) {
