@@ -4,10 +4,19 @@
         <meta http-equiv="Content-Type" content="text/html charset=utf-8"/>
         <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
         <link href="../jquery-ipanel.css" type="text/css" media="all" rel="stylesheet"/>
-        <script src="../bower_components/jquery/dist/jquery.js"></script>
-        <script src="../bower_components/jquery.event.move/js/jquery.event.move.js"></script>
+<!--
+        <script src="http://192.168.77.172:8080/target/target-script-min.js#anonymous"></script>
+-->
+        <script src="/bower_components/animation-frame/AnimationFrame.js"></script>
+        <script src="/bower_components/jquery/dist/jquery.js"></script>
+
+        <script src="/bower_components/jquery.event.move/js/jquery.event.move.js"></script>
+
+        <!--
         <script src="../dist/jquery.ipanel.js"></script>
+        -->
         <style>
+            * { -webkit-tap-highlight-color: rgba(0,0,0,0); }
             body {
                 margin: 0;
             }
@@ -18,7 +27,7 @@
             }
             .list-item {
                 position: relative;
-                height: 40px;
+                height: 80px;
                 border-bottom: 1px solid #333;
             }
             .list-item-content {
@@ -41,6 +50,7 @@
         <div class="list">
             <div class="list-item">
                 <div class="list-item-content ipanel-handle">List item 0</div>
+                <div id="list-item-menu"></div>
             </div>
             <div class="list-item">
                 <div class="list-item-content ipanel-handle">List item 1</div>
@@ -54,29 +64,46 @@
             <div class="list-item">
                 <div class="list-item-content ipanel-handle">List item 5</div>
             </div>
-            <div id="list-item-menu"></div>
         </div>
 
         <script>
         (function() {
-            var $menu = $('#list-item-menu').detach()
 
-            $('.list')
-                .iPanel({
-                    master: '.list-item-content',
-                    slave: $menu,
-                    slaveAnimation: false,
-                    hideDirection: 'left',
-                    static: false
-                })
-                .on('beforehide.ipanel', function(e) {
-                    console.log(e.type)
-                    $menu.insertAfter(e.target)
-                })
-                .on('show.ipanel', function(e) {
-                    console.log(e.type)
-                    $menu.detach()
-                })
+            window.onerror = function(e) {alert(e)}
+
+            AnimationFrame.shim()
+
+            // Avoid caching by wrong headers.
+            $.ajax({
+                dataType: 'script',
+                cache: false,
+                url: '/dist/jquery.ipanel.js',
+                success: bind
+            })
+
+            function bind() {
+                var $menu = $('#list-item-menu')
+
+                $('.list')
+                    .iPanel({
+                        master: '.list-item-content',
+                        handle: '.list-item',
+                        slave: $menu,
+                        slaveAnimation: false,
+                        hideDirection: 'left',
+                        dynamic: true,
+                        skipPreviousAnimation: true,
+                        //duration: 5000,
+                        //drag: false
+                    })
+                    .on('beforehide.ipanel', function(e) {
+                        console.log(e.type, e)
+                        $menu.insertAfter(e.target)
+                    })
+                    .on('show.ipanel', function(e) {
+                        console.log(e.type)
+                    })
+            }
 
             // Prevent scrolling.
             $(window).on('touchmove', function(e) {

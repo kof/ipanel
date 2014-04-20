@@ -1,8 +1,3 @@
-.ipanel, .ipanel-slave, .ipanel-handle {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    perspective: 0;
-}
 .ipanel-handle {
     cursor: pointer;
 }
