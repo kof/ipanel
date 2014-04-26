@@ -573,6 +573,10 @@ iPanel.prototype._onMoveEnd = function(e) {
         o = this.options,
         isSwipe
 
+    // Handle drag end only if drag has been started. In case of vertical movement
+    // drag is dragging is not true.
+    if (!this._dragging) return this._resetState()
+
     isSwipe = this._horDistance > o.swipeDistanceThreshold &&
         Date.now() - this._moveStartTime < o.swipeDurationThreshold
 
