@@ -357,7 +357,9 @@ iPanel.prototype._onceTransitionEnd = function(el, duration, callback) {
 
     function end() {
         $el.off(vendor + 'TransitionEnd', end)
-        if (callback) callback()
+        // At the moment animation is done, touch event can still be triggered on
+        // the old element position.
+        setTimeout(callback, 10)
         callback = null
     }
 
@@ -571,30 +573,29 @@ iPanel.prototype._onMove = function(e) {
 iPanel.prototype._onMoveEnd = function(e) {
     var self = this,
         o = this.options,
-        isSwipe
+        isSwipe,
+        resetState = this._resetState.bind(this)
 
     // Handle drag end only if drag has been started. In case of vertical movement
     // drag is dragging is not true.
-    if (!this._dragging) return this._resetState()
+    if (!this._dragging) return resetState()
 
     isSwipe = this._horDistance > o.swipeDistanceThreshold &&
         Date.now() - this._moveStartTime < o.swipeDurationThreshold
 
     if (isSwipe) {
         if (o.hideDirection == 'right') {
-            this._directionX > 0 ? this._toggle(true, null, o.easingAfterSwipe) : this._toggle()
+            this._directionX > 0 ? this._toggle(true, null, o.easingAfterSwipe, resetState) : this._toggle(null, null, null, resetState)
         } else {
-            this._directionX < 0 ? this._toggle(true, null, o.easingAfterSwipe) : this._toggle()
+            this._directionX < 0 ? this._toggle(true, null, o.easingAfterSwipe, resetState) : this._toggle(null, null, null, resetState)
         }
     } else {
         if (o.hideDirection == 'right') {
-            this._left >= this._getMaxLeft() / 2 ? this._toggle(true, null, o.easingAfterDrag) : this._toggle(false, null, o.easingAfterDrag)
+            this._left >= this._getMaxLeft() / 2 ? this._toggle(true, null, o.easingAfterDrag, resetState) : this._toggle(false, null, o.easingAfterDrag, resetState)
         } else {
-            this._left < this._getMaxLeft() / 2 ? this._toggle(true, null, o.easingAfterDrag) : this._toggle(false, null, o.easingAfterDrag)
+            this._left < this._getMaxLeft() / 2 ? this._toggle(true, null, o.easingAfterDrag, resetState) : this._toggle(false, null, o.easingAfterDrag, resetState)
         }
     }
-
-    this._resetState()
 }
 
 },{"transform-property":1}],3:[function(require,module,exports){
